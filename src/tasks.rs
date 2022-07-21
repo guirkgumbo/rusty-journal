@@ -33,6 +33,7 @@ fn collect_tasks(mut file: &File) -> Result<Vec<Task>> {
 }
 
 pub fn add_task(journal_path: PathBuf, task: Task) -> Result<()> {
+    let path = journal_path.clone();
     let file = OpenOptions::new()
         .read(true)
         .write(true)
@@ -41,10 +42,12 @@ pub fn add_task(journal_path: PathBuf, task: Task) -> Result<()> {
     let mut tasks = collect_tasks(&file)?;
     tasks.push(task);
     serde_json::to_writer(file, &tasks)?;
+    list_tasks(path).ok();
     Ok(())
 }
 
 pub fn complete_task(journal_path: PathBuf, task_position: usize) -> Result<()> {
+    let path = journal_path.clone();
     // Open the file.
     let file = OpenOptions::new()
         .read(true)
@@ -63,6 +66,7 @@ pub fn complete_task(journal_path: PathBuf, task_position: usize) -> Result<()> 
     // Write the modified task list back into the file.
     file.set_len(0)?;
     serde_json::to_writer(file, &tasks)?;
+    list_tasks(path).ok();
     Ok(())
 }
 
